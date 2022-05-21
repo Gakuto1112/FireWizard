@@ -172,9 +172,6 @@ end
 spyglass_model.RIGHT_SPYGLASS.setPos({-0.5, 1, 0})
 spyglass_model.LEFT_SPYGLASS.setPos({0.5, 1.5, 0})
 
---ネームタグの位置を調整
-nameplate.ENTITY.setPos({0, 0.3, 0})
-
 --杖、魔法陣のモデルを非表示
 ArmorHelmet = armor_model.HELMET
 RightWand = model.RightArm.RightMagicWand
@@ -272,6 +269,7 @@ if HatWorn then
 	action_wheel.SLOT_3.setTitle("帽子を外す")
 	RightParrot.setEnabled(false)
 	LeftParrot.setEnabled(false)
+	nameplate.ENTITY.setPos({0, 0.3, 0})
 else
 	action_wheel.SLOT_3.setTitle("帽子を被る")
 	Hat.setEnabled(false)
@@ -289,6 +287,7 @@ action_wheel.SLOT_3.setFunction(function()
 		ArmorHelmet.setEnabled(true)
 		RightParrot.setEnabled(true)
 		LeftParrot.setEnabled(true)
+		nameplate.ENTITY.setPos({0, 0, 0})
 		for i = 1, 30 do
 			particle.addParticle("minecraft:smoke", {playerPos.x, playerPos.y + 2, playerPos.z, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2})
 		end
@@ -299,6 +298,7 @@ action_wheel.SLOT_3.setFunction(function()
 		ArmorHelmet.setEnabled(false)
 		RightParrot.setEnabled(false)
 		LeftParrot.setEnabled(false)
+		nameplate.ENTITY.setPos({0, 0.3, 0})
 		for i = 1, 30 do
 			particle.addParticle("minecraft:end_rod", {playerPos.x, playerPos.y + 2, playerPos.z, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2})
 		end
