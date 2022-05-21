@@ -4,12 +4,14 @@ HatWorn = true --帽子を付けているかどうか
 VelocityData = {{}, {}} --速度データ：1. 横, 2. 縦
 Fps = 60 --FPS、初期値60、20刻み
 FpsCountData = {0, 0} --FPSを計測するためのデータ：1. tick, 2. render
-IsInMagicAnimation = false
-MagicAnimationCount = 0
-MagicSoundCount = 0
+IsInMagicAnimation = false --魔法実行中かどうか
+MagicAnimationCount = 0 --魔法のアニメーションカウンター
+MagicSoundCount = 0 --魔法時の交換用カウンター
 MagicData = {} --炎の弾のデータ。 {PlayerPos = [打った瞬間のプレイヤー位置], LookDir = [打った瞬間のプレイヤーの視点の向き], Count = [経過時間], Ttl = [0で爆発アニメーション&消去]}
-FlyingPrev = false
-FlyAnimationCount = 0
+FlyingPrev = false --前チックに飛行していたかどうか
+AttackKey = keybind.getRegisteredKeybind("key.attack") --攻撃ボタン
+AttackKeyPressedPrev = false --前チックに攻撃ボタンを押していたかどうか
+AttackAnimationCount = 0 --飛行時の攻撃モーションのアニメーションのカウンター
 
 function loadBoolean(variableToLoad, name)
 	local loadData = data.load(name)
@@ -484,6 +486,8 @@ function tick()
 	end
 
 	--クリエイティブ飛行時の防具の処理
+	local attackKeyPressed = AttackKey.isPressed()
+	local mainHeldItem = player.getHeldItem(1)
 	if flying then
 		local chestItem = player.getEquipmentItem(5)
 		if chestItem.getType() == "minecraft:leather_chestplate" then
@@ -542,6 +546,11 @@ function tick()
 		end
 		setGlint(Boots, bootsItem.hasGlint())
 		setGlint(BootsOverlay, bootsItem.hasGlint())
+
+		--クリエイティブ飛行時の腕の処理
+		if attackKeyPressed and not AttackKeyPressedPrev and mainHeldItem == nil then
+			AttackAnimationCount = 6
+		end
 	else
 		hidePartTable(Chestplate)
 		hidePartTable(ChestplateOverlay)
@@ -550,6 +559,7 @@ function tick()
 		hidePartTable(Boots)
 		hidePartTable(BootsOverlay)
 	end
+
 
 	--魔法データ処理
 	for index, data in ipairs(MagicData) do
@@ -592,16 +602,31 @@ function tick()
 		MagicAnimationCount = 0
 		MagicSoundCount = 0
 	end
-	if flying then
-		if FlyAnimationCount >= 60 then
-			FlyAnimationCount = 0
-		else
-			FlyAnimationCount = FlyAnimationCount + 1
-		end
-	else
-		FlyAnimationCount = 0
-	end
 	FlyingPrev = flying
+	AttackKeyPressedPrev = attackKeyPressed
+	local leftHanded = player.isLeftHanded()
+	local leftArm = model.LeftArm
+	local rightArm = model.RightArm
+	if AttackAnimationCount > 0 then
+		if leftArm then
+			leftArm.setEnabled(true)
+			LeftBroomArm.setEnabled(false)
+		else
+			rightArm.setEnabled(true)
+			RightBroomArm.setEnabled(false)
+		end
+		AttackAnimationCount = AttackAnimationCount - 1
+	else
+		if flying and mainHeldItem == nil then
+			if leftHanded then
+				leftArm.setEnabled(false)
+				LeftBroomArm.setEnabled(true)
+			else
+				rightArm.setEnabled(false)
+				RightBroomArm.setEnabled(true)
+			end
+		end
+	end
 end
 
 function render(delta)
@@ -717,14 +742,14 @@ function render(delta)
 			if (leftHanded and heldItem[2] ~= nil) or (not leftHanded and heldItem[1] ~= nil) or (not leftHanded and WandEquipped) then
 				rightArmModel.setEnabled(true)
 				RightBroomArm.setEnabled(false)
-			else
+			elseif leftHanded or AttackAnimationCount == 0 then
 				rightArmModel.setEnabled(false)
 				RightBroomArm.setEnabled(true)
 			end
 			if (leftHanded and heldItem[1] ~= nil) or (not leftHanded and heldItem[2] ~= nil) or (leftHanded and WandEquipped) then
 				leftArmModel.setEnabled(true)
 				LeftBroomArm.setEnabled(false)
-			else
+			elseif not leftHanded or AttackAnimationCount == 0 then
 				leftArmModel.setEnabled(false)
 				LeftBroomArm.setEnabled(true)
 			end
