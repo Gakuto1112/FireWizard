@@ -184,6 +184,8 @@ BroomLeg = model.Body.BroomLegs
 RightBroomArm = model.Body.RightBroomArm
 LeftBroomArm = model.Body.LeftBroomArm
 Hat = model.Head.Hat
+RightParrot = model.Body.RIGHT_PARROT_Secondary
+LeftParrot = model.Body.LEFT_PARROT_Secondary
 Helmet = model.Head.BouguHelmet
 HelmetOverlay = model.Head.BouguHelmet.BouguHelmetLeatherOverlay
 Chestplate = {model.Body.BouguBody, model.Body.RightBroomArm.RightBroomBouguArm, model.Body.LeftBroomArm.LeftBroomBouguArm, model.RightArm.RightBouguArm, model.LeftArm.LeftBouguArm}
@@ -266,6 +268,8 @@ end)
 --アクション3: 帽子の付け外し
 if HatWorn then
 	action_wheel.SLOT_3.setTitle("帽子を外す")
+	RightParrot.setEnabled(false)
+	LeftParrot.setEnabled(false)
 else
 	action_wheel.SLOT_3.setTitle("帽子を被る")
 	Hat.setEnabled(false)
@@ -281,6 +285,8 @@ action_wheel.SLOT_3.setFunction(function()
 		sound.playSound("minecraft:block.lava.extinguish", playerPos, {1, 1})
 		Hat.setEnabled(false)
 		ArmorHelmet.setEnabled(true)
+		RightParrot.setEnabled(true)
+		LeftParrot.setEnabled(true)
 		for i = 1, 30 do
 			particle.addParticle("minecraft:smoke", {playerPos.x, playerPos.y + 2, playerPos.z, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2})
 		end
@@ -289,6 +295,8 @@ action_wheel.SLOT_3.setFunction(function()
 		sound.playSound("minecraft:entity.player.levelup", playerPos, {1, 2})
 		Hat.setEnabled(true)
 		ArmorHelmet.setEnabled(false)
+		RightParrot.setEnabled(false)
+		LeftParrot.setEnabled(false)
 		for i = 1, 30 do
 			particle.addParticle("minecraft:end_rod", {playerPos.x, playerPos.y + 2, playerPos.z, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2})
 		end
