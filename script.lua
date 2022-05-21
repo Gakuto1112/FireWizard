@@ -201,6 +201,8 @@ end
 --アクション1： 杖の装備/解除
 action_wheel.SLOT_1.setTitle("魔法の杖を装備する")
 action_wheel.SLOT_1.setItem("minecraft:stick")
+action_wheel.SLOT_1.setColor({255/255, 170/255, 0/255})
+action_wheel.SLOT_1.setHoverColor({255/255, 255/255, 255/255})
 action_wheel.SLOT_1.setFunction(function()
 	local playerPos = player.getPos()
 	local bodyYaw = player.getBodyYaw() % 360 / 180 * math.pi
@@ -229,6 +231,8 @@ end)
 --アクション2: 炎の魔法
 action_wheel.SLOT_2.setTitle("炎の魔法")
 action_wheel.SLOT_2.setItem("minecraft:fire_charge")
+action_wheel.SLOT_2.setColor({255/255, 85/255, 85/255})
+action_wheel.SLOT_2.setHoverColor({255/255, 255/255, 255/255})
 action_wheel.SLOT_2.setFunction(function()
 	if IsWandEquipped then
 		IsInMagicAnimation = true
@@ -240,6 +244,8 @@ end)
 --アクション3: 帽子の付け外し
 action_wheel.SLOT_3.setTitle("帽子を外す")
 action_wheel.SLOT_3.setItem("minecraft:leather_helmet")
+action_wheel.SLOT_3.setColor({200/255, 200/255, 200/255})
+action_wheel.SLOT_3.setHoverColor({255/255, 255/255, 255/255})
 action_wheel.SLOT_3.setFunction(function()
 	local hat = model.Head.Hat
 	local playerPos = player.getPos()
