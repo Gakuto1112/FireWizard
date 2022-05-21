@@ -1,6 +1,6 @@
 --変数
-IsWandEquipped = false --杖を装備するかどうか
-IsHatWorn = true --帽子を付けているかどうか
+WandEquipped = false --杖を装備するかどうか
+HatWorn = true --帽子を付けているかどうか
 VelocityData = {{}, {}} --速度データ：1. 横, 2. 縦
 Fps = 60 --FPS、初期値60、20刻み
 FpsCountData = {0, 0} --FPSを計測するためのデータ：1. tick, 2. render
@@ -10,6 +10,19 @@ MagicSoundCount = 0
 MagicData = {} --炎の魔法の飛翔体のデータ。 {PlayerPos = [打った瞬間のプレイヤー位置], LookDir = [打った瞬間のプレイヤーの視点の向き], Count = [経過時間], Ttl = [0で爆発アニメーション&消去]}
 FlyingPrev = false
 FlyAnimationCount = 0
+
+function loadBoolean(variableToLoad, name)
+	local loadData = data.load(name)
+	if loadData ~= nil then
+		if loadData == "true" then
+			return true
+		else
+			return false
+		end
+	else
+		return variableToLoad
+	end
+end
 
 function hidePartTable(parts)
 	for index, value in ipairs(parts) do
@@ -31,6 +44,7 @@ function setFlyingHelmet(path, leather, overlayPath, tag)
 		HelmetOverlay.setEnabled(false)
 	end
 end
+
 function setFlyingChestplate(path, leather, tag)
 	for index, part in ipairs(Chestplate) do
 		part.setTexture("Resource", path)
@@ -144,6 +158,9 @@ function getTableAverage(tagetTable)
 	return sum / #tagetTable
 end
 
+--設定の読み込み
+HatWorn = loadBoolean(HatWorn, "HatWorn")
+
 --デフォルトのプレイヤーモデルを削除
 for key, vanillaModel in pairs(vanilla_model) do
 	vanillaModel.setEnabled(false)
@@ -162,6 +179,7 @@ Broom = model.Body.MagicalBroom
 BroomLeg = model.Body.BroomLegs
 RightBroomArm = model.Body.RightBroomArm
 LeftBroomArm = model.Body.LeftBroomArm
+Hat = model.Head.Hat
 Helmet = model.Head.BouguHelmet
 HelmetOverlay = model.Head.BouguHelmet.BouguHelmetLeatherOverlay
 Chestplate = {model.Body.BouguBody, model.Body.RightBroomArm.RightBroomBouguArm, model.Body.LeftBroomArm.LeftBroomBouguArm, model.RightArm.RightBouguArm, model.LeftArm.LeftBouguArm}
@@ -212,20 +230,20 @@ action_wheel.SLOT_1.setFunction(function()
 	else
 		wandPos = {{math.cos(bodyYaw - 0.35 * math.pi + math.pi), math.sin(bodyYaw - 0.35 * math.pi + math.pi)}, {math.cos(bodyYaw + 0.35 * math.pi + math.pi), math.sin(bodyYaw + 0.35 * math.pi + math.pi)}}
 	end
-	if IsWandEquipped then
+	if WandEquipped then
+		action_wheel.SLOT_1.setTitle("魔法の杖を装備する")
 		sound.playSound("minecraft:block.lava.extinguish", playerPos, {1, 1})
 		for i = 1, 30 do
 			particle.addParticle("minecraft:smoke", {playerPos.x + wandPos[1][1] + (wandPos[2][1] - wandPos[1][1]) * (i / 30), playerPos.y + 1, playerPos.z + wandPos[1][2] + (wandPos[2][2] - wandPos[1][2]) * (i / 30), (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2})
 		end
-		action_wheel.SLOT_1.setTitle("魔法の杖を装備する")
 	else
+		action_wheel.SLOT_1.setTitle("魔法の杖を外す")
 		sound.playSound("minecraft:entity.player.levelup", playerPos, {1, 2})
 		for i = 1, 30 do
 			particle.addParticle("minecraft:end_rod", {playerPos.x + wandPos[1][1] + (wandPos[2][1] - wandPos[1][1]) * (i / 30), playerPos.y + 1, playerPos.z + wandPos[1][2] + (wandPos[2][2] - wandPos[1][2]) * (i / 30), (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2})
 		end
-		action_wheel.SLOT_1.setTitle("魔法の杖を外す")
 	end
-	IsWandEquipped = not IsWandEquipped
+	WandEquipped = not WandEquipped
 end)
 
 --アクション2: 炎の魔法
@@ -234,7 +252,7 @@ action_wheel.SLOT_2.setItem("minecraft:fire_charge")
 action_wheel.SLOT_2.setColor({255/255, 85/255, 85/255})
 action_wheel.SLOT_2.setHoverColor({255/255, 255/255, 255/255})
 action_wheel.SLOT_2.setFunction(function()
-	if IsWandEquipped then
+	if WandEquipped then
 		IsInMagicAnimation = true
 	else
 		print("先に魔法の杖を装備してね！")
@@ -242,31 +260,37 @@ action_wheel.SLOT_2.setFunction(function()
 end)
 
 --アクション3: 帽子の付け外し
-action_wheel.SLOT_3.setTitle("帽子を外す")
+if HatWorn then
+	action_wheel.SLOT_3.setTitle("帽子を外す")
+else
+	action_wheel.SLOT_3.setTitle("帽子を被る")
+	Hat.setEnabled(false)
+	ArmorHelmet.setEnabled(true)
+end
 action_wheel.SLOT_3.setItem("minecraft:leather_helmet")
 action_wheel.SLOT_3.setColor({200/255, 200/255, 200/255})
 action_wheel.SLOT_3.setHoverColor({255/255, 255/255, 255/255})
 action_wheel.SLOT_3.setFunction(function()
-	local hat = model.Head.Hat
 	local playerPos = player.getPos()
-	if IsHatWorn then
+	if HatWorn then
+		action_wheel.SLOT_3.setTitle("帽子を被る")
 		sound.playSound("minecraft:block.lava.extinguish", playerPos, {1, 1})
-		hat.setEnabled(false)
+		Hat.setEnabled(false)
 		ArmorHelmet.setEnabled(true)
 		for i = 1, 30 do
 			particle.addParticle("minecraft:smoke", {playerPos.x, playerPos.y + 2, playerPos.z, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2})
 		end
-		action_wheel.SLOT_3.setTitle("帽子を被る")
 	else
+		action_wheel.SLOT_3.setTitle("帽子を外す")
 		sound.playSound("minecraft:entity.player.levelup", playerPos, {1, 2})
-		hat.setEnabled(true)
+		Hat.setEnabled(true)
 		ArmorHelmet.setEnabled(false)
 		for i = 1, 30 do
 			particle.addParticle("minecraft:end_rod", {playerPos.x, playerPos.y + 2, playerPos.z, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2})
 		end
-		action_wheel.SLOT_3.setTitle("帽子を外す")
 	end
-	IsHatWorn = not IsHatWorn
+	HatWorn = not HatWorn
+	data.save("HatWorn", HatWorn)
 end)
 
 function tick()
@@ -274,7 +298,7 @@ function tick()
 	local rightItem = held_item_model.RIGHT_HAND
 	local leftItem = held_item_model.LEFT_HAND
 	local playerPos = player.getPos()
-	if IsWandEquipped then
+	if WandEquipped then
 		if player.isLeftHanded() then
 			LeftWand.setEnabled(true)
 			RightWand.setEnabled(false)
@@ -294,7 +318,7 @@ function tick()
 	end
 
 	--杖のパーティクル
-	if IsWandEquipped then
+	if WandEquipped then
 		local bodyYaw = player.getBodyYaw() % 360 / 180 * math.pi
 		if player.isLeftHanded() then
 			particle.addParticle("minecraft:flame", {playerPos.x + math.cos(bodyYaw + 0.35 * math.pi) + (math.random() - 0.5) * 0.5, playerPos.y + 1 + (math.random() - 0.5) * 0.5, playerPos.z + math.sin(bodyYaw + 0.35 * math.pi) + (math.random() - 0.5) * 0.5, 0, 0, 0})
@@ -304,7 +328,7 @@ function tick()
 	end
 
 	--魔法のアニメーション
-	if not IsWandEquipped and IsInMagicAnimation then
+	if not WandEquipped and IsInMagicAnimation then
 		Circle1.setEnabled(false)
 		Circle2.setEnabled(false)
 		animation["FireMagic"].cease()
@@ -412,7 +436,7 @@ function tick()
 
 	--バニラのヘルメットの処理
 	local flying = player.isFlying()
-	if flying and not IsHatWorn then
+	if flying and not HatWorn then
 		armor_model.HELMET.setEnabled(false)
 		Helmet.setEnabled(true)
 		if headItem.getType() == "minecraft:leather_helmet" then
@@ -441,7 +465,7 @@ function tick()
 			HelmetOverlay.setShader("None")
 		end
 		else
-		if not IsHatWorn then
+		if not HatWorn then
 			armor_model.HELMET.setEnabled(true)
 		end
 		Helmet.setEnabled(false)
@@ -647,7 +671,7 @@ function render(delta)
 	local leftArm = vanilla_model.LEFT_ARM
 	local leftArmLayer = vanilla_model.LEFT_SLEEVE
 	if renderer.isFirstPerson() then
-		if IsWandEquipped then
+		if WandEquipped then
 			rightArm.setRot({0, 1.1, -0.4})
 			rightArmLayer.setRot({0, 1.1, -0.4})
 			leftArm.setRot({0, -1.1, 0.4})
@@ -674,14 +698,14 @@ function render(delta)
 		local heldItem = {player.getHeldItem(1), player.getHeldItem(2)}
 		if flying then
 			animation["FlyAnimation"].start()
-			if (leftHanded and heldItem[2] ~= nil) or (not leftHanded and heldItem[1] ~= nil) or (not leftHanded and IsWandEquipped) then
+			if (leftHanded and heldItem[2] ~= nil) or (not leftHanded and heldItem[1] ~= nil) or (not leftHanded and WandEquipped) then
 				rightArmModel.setEnabled(true)
 				RightBroomArm.setEnabled(false)
 			else
 				rightArmModel.setEnabled(false)
 				RightBroomArm.setEnabled(true)
 			end
-			if (leftHanded and heldItem[1] ~= nil) or (not leftHanded and heldItem[2] ~= nil) or (leftHanded and IsWandEquipped) then
+			if (leftHanded and heldItem[1] ~= nil) or (not leftHanded and heldItem[2] ~= nil) or (leftHanded and WandEquipped) then
 				leftArmModel.setEnabled(true)
 				LeftBroomArm.setEnabled(false)
 			else
