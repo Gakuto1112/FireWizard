@@ -166,6 +166,10 @@ for key, vanillaModel in pairs(vanilla_model) do
 	vanillaModel.setEnabled(false)
 end
 
+--望遠鏡の調整
+spyglass_model.RIGHT_SPYGLASS.setPos({-0.5, 1, 0})
+spyglass_model.LEFT_SPYGLASS.setPos({0.5, 1.5, 0})
+
 --ネームタグの位置を調整
 nameplate.ENTITY.setPos({0, 0.3, 0})
 
