@@ -7,7 +7,7 @@ FpsCountData = {0, 0} --FPSを計測するためのデータ：1. tick, 2. rende
 IsInMagicAnimation = false
 MagicAnimationCount = 0
 MagicSoundCount = 0
-MagicData = {} --炎の魔法の飛翔体のデータ。 {PlayerPos = [打った瞬間のプレイヤー位置], LookDir = [打った瞬間のプレイヤーの視点の向き], Count = [経過時間], Ttl = [0で爆発アニメーション&消去]}
+MagicData = {} --炎の弾のデータ。 {PlayerPos = [打った瞬間のプレイヤー位置], LookDir = [打った瞬間のプレイヤーの視点の向き], Count = [経過時間], Ttl = [0で爆発アニメーション&消去]}
 FlyingPrev = false
 FlyAnimationCount = 0
 
@@ -347,7 +347,7 @@ function tick()
 		animation["FireMagic"].start()
 	elseif MagicAnimationCount == 15 then
 		sound.playSound("minecraft:item.firecharge.use", playerPos, {1, 0.5})
-		table.insert(MagicData, {PlayerPos = {playerPos.x, playerPos.y + 1.5, playerPos.z}, LookDir = player.getLookDir(), Count = 0, Ttl = 30})
+		table.insert(MagicData, {PlayerPos = {playerPos.x, playerPos.y + 1.5, playerPos.z}, LookDir = player.getLookDir(), Count = 0, Ttl = 200})
 	end
 	if IsInMagicAnimation then
 		if MagicSoundCount == 6 then
@@ -554,7 +554,11 @@ function tick()
 				particle.addParticle("minecraft:flame", {targetPosition[1] + math.random() - 0.5, targetPosition[2] + math.random() - 0.5, targetPosition[3] + math.random() - 0.5, 0, 0, 0})
 			end
 			data["Count"] = data["Count"] + 1
-			data["Ttl"] = data["Ttl"] - 1
+			if world.getBlockState({targetPosition[1], targetPosition[2], targetPosition[3]}).name == "minecraft:air" then
+				data["Ttl"] = data["Ttl"] - 1
+			else
+				data["Ttl"] = 0
+			end
 		end
 	end
 
