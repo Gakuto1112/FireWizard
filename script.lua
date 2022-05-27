@@ -679,7 +679,7 @@ function render(delta)
 	if lookRotDelta >= 180 then
 		lookRotDelta = 360 - lookRotDelta
 	end
-	table.insert(VelocityData[3], lookRotDelta)
+	table.insert(VelocityData[3], lookRotDelta * Fps)
 	for index, velocityTable in ipairs(VelocityData) do
 		while #velocityTable > Fps * 0.25 do
 			table.remove(velocityTable, 1)
@@ -710,8 +710,8 @@ function render(delta)
 			frontHair.setRot({math.min(math.max(-horizontalAverage * 160 - verticalAverage * 80, hairLimit[1][1]), hairLimit[1][2]), 0, 0})
 			backHair.setRot({math.min(math.max(-horizontalAverage * 160 + verticalAverage * 80, hairLimit[2][1]), hairLimit[2][2]), 0, 0})
 		else
-			frontHair.setRot({math.min(math.max(-horizontalAverage * 160 + angularVelocityAverage * 20, hairLimit[1][1]), hairLimit[1][2]), 0, 0})
-			backHair.setRot({math.min(math.max(-horizontalAverage * 160 - angularVelocityAverage * 20, hairLimit[2][1]), hairLimit[2][2]), 0, 0})
+			frontHair.setRot({math.min(math.max(-horizontalAverage * 160 + angularVelocityAverage * 0.05, hairLimit[1][1]), hairLimit[1][2]), 0, 0})
+			backHair.setRot({math.min(math.max(-horizontalAverage * 160 - angularVelocityAverage * 0.05, hairLimit[2][1]), hairLimit[2][2]), 0, 0})
 		end
 	end
 	
