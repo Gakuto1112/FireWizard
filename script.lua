@@ -1,7 +1,8 @@
 --変数
 WandEquipped = false --杖を装備するかどうか
 HatWorn = true --帽子を付けているかどうか
-VelocityData = {{}, {}} --速度データ：1. 横, 2. 縦
+VelocityData = {{}, {}, {}} --速度データ：1. 横, 2. 縦, 3. 角速度
+LookRotPrev = 0 --前チックの向いている方向
 Fps = 60 --FPS、初期値60、20刻み
 FpsCountData = {0, 0} --FPSを計測するためのデータ：1. tick, 2. render
 IsInMagicAnimation = false --魔法実行中かどうか
@@ -672,6 +673,13 @@ function render(delta)
 		table.insert(VelocityData[1], 0)
 	end
 	table.insert(VelocityData[2], velocity.y)
+	local lookDir = player.getLookDir()
+	local lookRot = math.deg(math.atan2(lookDir.z, lookDir.x))
+	local lookRotDelta = math.abs(lookRot - LookRotPrev)
+	if lookRotDelta >= 180 then
+		lookRotDelta = 360 - lookRotDelta
+	end
+	table.insert(VelocityData[3], lookRotDelta)
 	for index, velocityTable in ipairs(VelocityData) do
 		while #velocityTable > Fps * 0.25 do
 			table.remove(velocityTable, 1)
@@ -688,21 +696,22 @@ function render(delta)
 	end
 	local horizontalAverage = getTableAverage(VelocityData[1])
 	local verticalAverage = getTableAverage(VelocityData[2])
+	local angularVelocityAverage = getTableAverage(VelocityData[3])
 	local frontHair = model.Body.Hairs.FrontHair
 	local backHair = model.Body.Hairs.BackHair
 	if playerAnimation == "FALL_FLYING" then
 		frontHair.setRot({math.min(math.max(hairLimit[1][2] - math.sqrt(horizontalAverage ^ 2 + verticalAverage ^ 2) * 80, hairLimit[1][1]), hairLimit[1][2]), 0, 0})
-		backHair.setRot({0, 0, 0})
+		backHair.setRot({hairLimit[2][2], 0, 0})
 	elseif playerAnimation == "SWIMMING" then
 		frontHair.setRot({math.min(math.max(hairLimit[1][2] - math.sqrt(horizontalAverage ^ 2 + verticalAverage ^ 2) * 320, hairLimit[1][1]), hairLimit[1][2]), 0, 0})
-		backHair.setRot({0, 0, 0})
+		backHair.setRot({hairLimit[2][2], 0, 0})
 	else
 		if verticalAverage < 0 then
 			frontHair.setRot({math.min(math.max(-horizontalAverage * 160 - verticalAverage * 80, hairLimit[1][1]), hairLimit[1][2]), 0, 0})
 			backHair.setRot({math.min(math.max(-horizontalAverage * 160 + verticalAverage * 80, hairLimit[2][1]), hairLimit[2][2]), 0, 0})
 		else
-			frontHair.setRot({math.min(math.max(-horizontalAverage * 160, hairLimit[1][1]), hairLimit[1][2]), 0, 0})
-			backHair.setRot({math.min(math.max(-horizontalAverage * 160, hairLimit[2][1]), hairLimit[2][2]), 0, 0})
+			frontHair.setRot({math.min(math.max(-horizontalAverage * 160 + angularVelocityAverage * 20, hairLimit[1][1]), hairLimit[1][2]), 0, 0})
+			backHair.setRot({math.min(math.max(-horizontalAverage * 160 - angularVelocityAverage * 20, hairLimit[2][1]), hairLimit[2][2]), 0, 0})
 		end
 	end
 	
@@ -769,4 +778,5 @@ end
 
 	--レンダー終了処理
 	FpsCountData[2] = FpsCountData[2] + 1
+	LookRotPrev = lookRot
 end
