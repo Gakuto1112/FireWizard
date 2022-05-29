@@ -1,6 +1,11 @@
+--設定値
+SkinName = "Vinny"
+
 --変数
 WandEquipped = false --杖を装備するかどうか
 HatWorn = true --帽子を付けているかどうか
+UseSkinName = false --スキン名を使用するかどうか
+ShowNameWarning = true --名前表示関する注意を表示するかどうか
 VelocityData = {{}, {}, {}} --速度データ：1. 横, 2. 縦, 3. 角速度
 LookRotPrev = 0 --前チックの向いている方向
 Fps = 60 --FPS、初期値60、20刻み
@@ -163,6 +168,8 @@ end
 
 --設定の読み込み
 HatWorn = loadBoolean(HatWorn, "HatWorn")
+UseSkinName = loadBoolean(UseSkinName, "UseSkinName")
+ShowNameWarning = loadBoolean(ShowNameWarning, "ShowNameWarning")
 
 --デフォルトのプレイヤーモデルを削除
 for key, vanillaModel in pairs(vanilla_model) do
@@ -308,7 +315,47 @@ action_wheel.SLOT_3.setFunction(function()
 	data.save("HatWorn", HatWorn)
 end)
 
+--アクションバー4: 名前の変更（スキン名を使用するかどうか）
+if SkinName ~= "" then
+	if UseSkinName then
+		action_wheel.SLOT_4.setTitle("名前：§aプレイヤー名§rにする")
+	else
+		action_wheel.SLOT_4.setTitle("名前：§aスキン名§rにする")
+	end
+	action_wheel.SLOT_4.setItem("minecraft:name_tag")
+	action_wheel.SLOT_4.setColor({200/255, 200/255, 200/255})
+	action_wheel.SLOT_4.setHoverColor({255/255, 255/255, 255/255})
+	action_wheel.SLOT_4.setFunction(function()
+		local playerName = player.getName()
+		if UseSkinName then
+			action_wheel.SLOT_4.setTitle("名前：§aスキン名§rにする")
+			print("あなたは§a"..playerName.."§rと表示されます。")
+		else
+			action_wheel.SLOT_4.setTitle("名前：§aプレイヤー名§rにする")
+			print("あなたは§a"..SkinName.."§rと表示されます。")
+			if ShowNameWarning then
+				print("[§c注意§r] この名前（§a"..SkinName.."§r）はFiguraを導入しているかつ、あなたの信用度を§eTrusted§r以上に設定しているプレイヤーのみに表示されます。それ以外のプレイヤーには通常通り§a"..playerName.."§rと表示されます。また、サーバー側にはこの名前（§a"..SkinName.."§r）は反映されません。§7このメッセージは再び表示されません。")
+				ShowNameWarning = false
+				data.save("ShowNameWarning", ShowNameWarning)
+			end
+		end
+		UseSkinName = not UseSkinName
+		data.save("UseSkinName", UseSkinName)
+	end)
+else
+	UseSkinName = false
+end
+
 function tick()
+	--プレイヤー名の設定
+	for name, namePlate in pairs(nameplate) do
+		if UseSkinName then
+			namePlate.setText(SkinName)
+		else
+			namePlate.setText(player.getName())
+		end
+	end	
+
 	--杖の処理
 	local rightItem = held_item_model.RIGHT_HAND
 	local leftItem = held_item_model.LEFT_HAND
