@@ -659,7 +659,7 @@ function tick()
 	local leftArm = model.LeftArm
 	local rightArm = model.RightArm
 	if AttackAnimationCount > 0 then
-		if leftArm then
+		if leftHanded then
 			leftArm.setEnabled(true)
 			LeftBroomArm.setEnabled(false)
 		else
