@@ -32,13 +32,18 @@ function loadBoolean(variableToLoad, name)
 	end
 end
 
+function setUpDownFace(model, x, y)
+	model.setUVData("UP", {x, y, 4, 4})
+	model.setUVData("DOWN", {x + 4, y, 4, 4})
+end
+
 function hidePartTable(parts)
 	for index, value in ipairs(parts) do
 		value.setEnabled(false)
 	end
 end
 
-function setFlyingHelmet(path, leather, overlayPath, tag)
+function setFlyingHelmet(path, leather, tag)
 	Helmet.setTexture("Resource", path)
 	if leather then
 		if tag.display ~= nil and tag.display.color ~= nil then
@@ -76,16 +81,9 @@ function setFlyingChestplate(path, leather, tag)
 	end
 end
 
-function setFlyingLeggins(path, y, leather, overlayPath, tag)
+function setFlyingLeggins(path, leather, tag)
 	for index, part in ipairs(Leggins) do
-		if index == 1 then
-			part.setTextureSize({64, 32})
-			part.setTexture("Resource", path)
-		elseif index == 2 or index == 4 then
-			part.setUV({96 / 112, (y - 16) / 280})
-		else
-			part.setUV({96 / 112, (y - 12) / 280})
-		end
+		part.setTexture("Resource", path)
 		if leather then
 			if tag.display ~= nil and tag.display.color ~= nil then
 				part.setColor(vectors.intToRGB(tag.display.color))
@@ -99,14 +97,6 @@ function setFlyingLeggins(path, y, leather, overlayPath, tag)
 	end
 	if leather then
 		for index, part in ipairs(LegginsOverlay) do
-			if index == 1 then
-				part.setTextureSize({64, 32})
-				part.setTexture("Resource", overlayPath)
-			elseif index == 2 or index == 4 then
-				part.setUV({0 / 112, 20 / 280})
-			else
-				part.setUV({0 / 112, 30 / 280})
-			end
 			part.setEnabled(true)
 		end
 	else
@@ -114,13 +104,9 @@ function setFlyingLeggins(path, y, leather, overlayPath, tag)
 	end
 end
 
-function setFlyingBoots(y, leather, tag)
+function setFlyingBoots(path, leather, tag)
 	for index, part in ipairs(Boots) do
-		if index == 1 or index == 3 then
-			part.setUV({96 / 112, (y - 16) / 280})
-		else
-			part.setUV({96 / 112, (y - 12) / 280})
-		end
+		part.setTexture("Resource", path)
 		if leather then
 			if tag.display ~= nil and tag.display.color ~= nil then
 				part.setColor(vectors.intToRGB(tag.display.color))
@@ -134,11 +120,6 @@ function setFlyingBoots(y, leather, tag)
 	end
 	if leather then
 		for index, part in ipairs(BootsOverlay) do
-			if index == 1 or index == 3 then
-				part.setUV({0 / 112, 10 / 280})
-			else
-				part.setUV({0 / 112, 20 / 280})
-			end
 			part.setEnabled(true)
 		end
 	else
@@ -227,6 +208,28 @@ for index, part in ipairs(ChestplateOverlay) do
 	part.setTextureSize({64, 32})
 	part.setTexture("Resource", "minecraft:textures/models/armor/leather_layer_1_overlay.png")
 end
+for index, part in ipairs(Leggins) do
+	part.setTextureSize({64, 32})
+end
+for index, part in ipairs(LegginsOverlay) do
+	part.setTextureSize({64, 32})
+	part.setTexture("Resource", "minecraft:textures/models/armor/leather_layer_2_overlay.png")
+end
+for index, part in ipairs(Boots) do
+	part.setTextureSize({64, 32})
+end
+for index, part in ipairs(BootsOverlay) do
+	part.setTextureSize({64, 32})
+	part.setTexture("Resource", "minecraft:textures/models/armor/leather_layer_1_overlay.png")
+end
+
+--一部のUVの再設定
+for index, part in ipairs({model.Body.BroomLegs.RightBroomLeg.RightBroomLegBottom.RightLegBottom, Leggins[3], Leggins[5], LegginsOverlay[3], LegginsOverlay[5], Boots[2], Boots[4], BootsOverlay[2], BootsOverlay[4]}) do
+	setUpDownFace(part, 4, 16)
+end
+setUpDownFace(model.Body.BroomLegs.RightBroomLeg.RightBroomLegBottom.RightLegBottomLayer, 4, 32)
+setUpDownFace(model.Body.BroomLegs.LeftBroomLeg.LeftBroomLegBottom.LeftLegBottom, 20, 48)
+setUpDownFace(model.Body.BroomLegs.LeftBroomLeg.LeftBroomLegBottom.LeftLegBottomLayer, 4, 48)
 
 --アクションホイール
 --アクション1： 杖の装備/解除
@@ -470,22 +473,22 @@ function tick()
 			hatHelmet.setColor(vectors.intToRGB(0xA06540))
 		end
 	elseif headItem.getType() == "minecraft:chainmail_helmet" then
-		hatHelmet.setUV({-48 / 112, 117 / 280})
+		hatHelmet.setUV({-48 / 96, 117 / 200})
 		hatHelmet.setColor(vectors.intToRGB(0xFFFFFF))
 	elseif headItem.getType() == "minecraft:iron_helmet" then
-		hatHelmet.setUV({-32 / 112, 117 / 280})
+		hatHelmet.setUV({-32 / 96, 117 / 200})
 		hatHelmet.setColor(vectors.intToRGB(0xFFFFFF))
 	elseif headItem.getType() == "minecraft:golden_helmet" then
-		hatHelmet.setUV({-16 / 112, 117 / 280})
+		hatHelmet.setUV({-16 / 96, 117 / 200})
 		hatHelmet.setColor(vectors.intToRGB(0xFFFFFF))
 	elseif headItem.getType() == "minecraft:diamond_helmet" then
-		hatHelmet.setUV({0 / 112, 117 / 280})
+		hatHelmet.setUV({0 / 96, 117 / 200})
 		hatHelmet.setColor(vectors.intToRGB(0xFFFFFF))
 	elseif headItem.getType() == "minecraft:netherite_helmet" then
-		hatHelmet.setUV({16 / 112, 117 / 280})
+		hatHelmet.setUV({16 / 96, 117 / 200})
 		hatHelmet.setColor(vectors.intToRGB(0xFFFFFF))
 	elseif headItem.getType() == "minecraft:turtle_helmet" then
-		hatHelmet.setUV({-64 / 112, 125 / 280})
+		hatHelmet.setUV({-64 / 96, 125 / 200})
 		hatHelmet.setColor(vectors.intToRGB(0xFFFFFF))
 	else
 		hatHelmet.setUV({0 / 112, 0 / 280})
@@ -502,7 +505,7 @@ function tick()
 		armor_model.HELMET.setEnabled(false)
 		Helmet.setEnabled(true)
 		if headItem.getType() == "minecraft:leather_helmet" then
-			setFlyingHelmet("minecraft:textures/models/armor/leather_layer_1.png", true, "minecraft:textures/models/armor/leather_layer_1_overlay.png", headItem.getTag())
+			setFlyingHelmet("minecraft:textures/models/armor/leather_layer_1.png", true, headItem.getTag())
 		elseif headItem.getType() == "minecraft:chainmail_helmet" then
 			setFlyingHelmet("minecraft:textures/models/armor/chainmail_layer_1.png")
 		elseif headItem.getType() == "minecraft:iron_helmet" then
@@ -558,17 +561,17 @@ function tick()
 		setGlint(ChestplateOverlay, chestItem.hasGlint())
 		local legginsItem = player.getEquipmentItem(4)
 		if legginsItem.getType() == "minecraft:leather_leggings" then
-			setFlyingLeggins("minecraft:textures/models/armor/leather_layer_2.png", 0, true, "minecraft:textures/models/armor/leather_layer_2_overlay.png", legginsItem.getTag())
+			setFlyingLeggins("minecraft:textures/models/armor/leather_layer_2.png", true, legginsItem.getTag())
 		elseif legginsItem.getType() == "minecraft:chainmail_leggings" then
-			setFlyingLeggins("minecraft:textures/models/armor/chainmail_layer_2.png", 80)
+			setFlyingLeggins("minecraft:textures/models/armor/chainmail_layer_2.png")
 		elseif legginsItem.getType() == "minecraft:iron_leggings" then
-			setFlyingLeggins("minecraft:textures/models/armor/iron_layer_2.png", 120)
+			setFlyingLeggins("minecraft:textures/models/armor/iron_layer_2.png")
 		elseif legginsItem.getType() == "minecraft:golden_leggings" then
-			setFlyingLeggins("minecraft:textures/models/armor/gold_layer_2.png", 160)
+			setFlyingLeggins("minecraft:textures/models/armor/gold_layer_2.png")
 		elseif legginsItem.getType() == "minecraft:diamond_leggings" then
-			setFlyingLeggins("minecraft:textures/models/armor/diamond_layer_2.png", 200)
+			setFlyingLeggins("minecraft:textures/models/armor/diamond_layer_2.png")
 		elseif legginsItem.getType() == "minecraft:netherite_leggings" then
-			setFlyingLeggins("minecraft:textures/models/armor/netherite_layer_2.png", 240)
+			setFlyingLeggins("minecraft:textures/models/armor/netherite_layer_2.png")
 		else
 			hidePartTable(Leggins)
 			hidePartTable(LegginsOverlay)
@@ -577,17 +580,17 @@ function tick()
 		setGlint(LegginsOverlay, legginsItem.hasGlint())
 		local bootsItem = player.getEquipmentItem(3)
 		if bootsItem.getType() == "minecraft:leather_boots" then
-			setFlyingBoots(40, true, bootsItem.getTag())
+			setFlyingBoots("minecraft:textures/models/armor/leather_layer_1.png", true, bootsItem.getTag())
 		elseif bootsItem.getType() == "minecraft:chainmail_boots" then
-			setFlyingBoots(100)
+			setFlyingBoots("minecraft:textures/models/armor/chainmail_layer_1.png")
 		elseif bootsItem.getType() == "minecraft:iron_boots" then
-			setFlyingBoots(140)
+			setFlyingBoots("minecraft:textures/models/armor/iron_layer_1.png")
 		elseif bootsItem.getType() == "minecraft:golden_boots" then
-			setFlyingBoots(180)
+			setFlyingBoots("minecraft:textures/models/armor/golden_layer_1.png")
 		elseif bootsItem.getType() == "minecraft:diamond_boots" then
-			setFlyingBoots(220)
+			setFlyingBoots("minecraft:textures/models/armor/diamond_layer_1.png")
 		elseif bootsItem.getType() == "minecraft:netherite_boots" then
-			setFlyingBoots(260)
+			setFlyingBoots("minecraft:textures/models/armor/netherite_layer_1.png")
 		else
 			hidePartTable(Boots)
 			hidePartTable(BootsOverlay)
