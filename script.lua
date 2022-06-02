@@ -147,9 +147,74 @@ function getTableAverage(tagetTable)
 	return sum / #tagetTable
 end
 
+--ping関数
+function ping.setWandEquipped(boolToSet)
+	WandEquipped = boolToSet
+	local playerPos = player.getPos()
+	local bodyYaw = player.getBodyYaw() % 360 / 180 * math.pi
+	local wandPos
+	if player.isLeftHanded() then
+		wandPos = {{math.cos(bodyYaw - 0.35 * math.pi), math.sin(bodyYaw - 0.35 * math.pi)}, {math.cos(bodyYaw + 0.35 * math.pi), math.sin(bodyYaw + 0.35 * math.pi)}}
+	else
+		wandPos = {{math.cos(bodyYaw - 0.35 * math.pi + math.pi), math.sin(bodyYaw - 0.35 * math.pi + math.pi)}, {math.cos(bodyYaw + 0.35 * math.pi + math.pi), math.sin(bodyYaw + 0.35 * math.pi + math.pi)}}
+	end
+	if WandEquipped then
+		sound.playSound("minecraft:entity.player.levelup", playerPos, {1, 2})
+		for i = 1, 30 do
+			particle.addParticle("minecraft:end_rod", {playerPos.x + wandPos[1][1] + (wandPos[2][1] - wandPos[1][1]) * (i / 30), playerPos.y + 1, playerPos.z + wandPos[1][2] + (wandPos[2][2] - wandPos[1][2]) * (i / 30), (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2})
+		end
+	else
+		sound.playSound("minecraft:block.lava.extinguish", playerPos, {1, 1})
+		for i = 1, 30 do
+			particle.addParticle("minecraft:smoke", {playerPos.x + wandPos[1][1] + (wandPos[2][1] - wandPos[1][1]) * (i / 30), playerPos.y + 1, playerPos.z + wandPos[1][2] + (wandPos[2][2] - wandPos[1][2]) * (i / 30), (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2})
+		end
+	end
+end
+
+function ping.fireWagic()
+	IsInMagicAnimation = true
+end
+
+function ping.setHatWorn(boolToSet)
+	HatWorn = boolToSet
+	local playerPos = player.getPos()
+	if HatWorn then
+		Hat.setEnabled(true)
+		ArmorHelmet.setEnabled(false)
+		RightParrot.setEnabled(false)
+		LeftParrot.setEnabled(false)
+		nameplate.ENTITY.setPos({0, 0.3, 0})	
+		sound.playSound("minecraft:entity.player.levelup", playerPos, {1, 2})
+		for i = 1, 30 do
+			particle.addParticle("minecraft:end_rod", {playerPos.x, playerPos.y + 2, playerPos.z, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2})
+		end
+	else
+		Hat.setEnabled(false)
+		ArmorHelmet.setEnabled(true)
+		ArmorHelmet.setEnabled(true)
+		RightParrot.setEnabled(true)
+		LeftParrot.setEnabled(true)
+		nameplate.ENTITY.setPos({0, 0, 0})
+		sound.playSound("minecraft:block.lava.extinguish", playerPos, {1, 1})
+		for i = 1, 30 do
+			particle.addParticle("minecraft:smoke", {playerPos.x, playerPos.y + 2, playerPos.z, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2})
+		end
+	end
+end
+
+function ping.setUseSkinName(boolToSet)
+	UseSkinName = boolToSet
+end
+
+function ping.punch()
+	AttackAnimationCount = 6
+end
+
 --設定の読み込み
 HatWorn = loadBoolean(HatWorn, "HatWorn")
+ping.setHatWorn(HatWorn)
 UseSkinName = loadBoolean(UseSkinName, "UseSkinName")
+ping.setUseSkinName(UseSkinName)
 ShowNameWarning = loadBoolean(ShowNameWarning, "ShowNameWarning")
 
 --デフォルトのプレイヤーモデルを削除
@@ -238,28 +303,13 @@ action_wheel.SLOT_1.setItem("minecraft:stick")
 action_wheel.SLOT_1.setColor({255/255, 170/255, 0/255})
 action_wheel.SLOT_1.setHoverColor({255/255, 255/255, 255/255})
 action_wheel.SLOT_1.setFunction(function()
-	local playerPos = player.getPos()
-	local bodyYaw = player.getBodyYaw() % 360 / 180 * math.pi
-	local wandPos
-	if player.isLeftHanded() then
-		wandPos = {{math.cos(bodyYaw - 0.35 * math.pi), math.sin(bodyYaw - 0.35 * math.pi)}, {math.cos(bodyYaw + 0.35 * math.pi), math.sin(bodyYaw + 0.35 * math.pi)}}
-	else
-		wandPos = {{math.cos(bodyYaw - 0.35 * math.pi + math.pi), math.sin(bodyYaw - 0.35 * math.pi + math.pi)}, {math.cos(bodyYaw + 0.35 * math.pi + math.pi), math.sin(bodyYaw + 0.35 * math.pi + math.pi)}}
-	end
 	if WandEquipped then
 		action_wheel.SLOT_1.setTitle("魔法の杖を装備する")
-		sound.playSound("minecraft:block.lava.extinguish", playerPos, {1, 1})
-		for i = 1, 30 do
-			particle.addParticle("minecraft:smoke", {playerPos.x + wandPos[1][1] + (wandPos[2][1] - wandPos[1][1]) * (i / 30), playerPos.y + 1, playerPos.z + wandPos[1][2] + (wandPos[2][2] - wandPos[1][2]) * (i / 30), (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2})
-		end
 	else
 		action_wheel.SLOT_1.setTitle("魔法の杖を外す")
-		sound.playSound("minecraft:entity.player.levelup", playerPos, {1, 2})
-		for i = 1, 30 do
-			particle.addParticle("minecraft:end_rod", {playerPos.x + wandPos[1][1] + (wandPos[2][1] - wandPos[1][1]) * (i / 30), playerPos.y + 1, playerPos.z + wandPos[1][2] + (wandPos[2][2] - wandPos[1][2]) * (i / 30), (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2})
-		end
 	end
 	WandEquipped = not WandEquipped
+	ping.setWandEquipped(WandEquipped)
 end)
 
 --アクション2: 炎の魔法
@@ -269,7 +319,7 @@ action_wheel.SLOT_2.setColor({255/255, 85/255, 85/255})
 action_wheel.SLOT_2.setHoverColor({255/255, 255/255, 255/255})
 action_wheel.SLOT_2.setFunction(function()
 	if WandEquipped then
-		IsInMagicAnimation = true
+		ping.fireWagic()
 	else
 		print("先に魔法の杖を装備してね！")
 	end
@@ -278,43 +328,20 @@ end)
 --アクション3: 帽子の付け外し
 if HatWorn then
 	action_wheel.SLOT_3.setTitle("帽子を外す")
-	RightParrot.setEnabled(false)
-	LeftParrot.setEnabled(false)
-	nameplate.ENTITY.setPos({0, 0.3, 0})
 else
 	action_wheel.SLOT_3.setTitle("帽子を被る")
-	Hat.setEnabled(false)
-	ArmorHelmet.setEnabled(true)
 end
 action_wheel.SLOT_3.setItem("minecraft:leather_helmet")
 action_wheel.SLOT_3.setColor({200/255, 200/255, 200/255})
 action_wheel.SLOT_3.setHoverColor({255/255, 255/255, 255/255})
 action_wheel.SLOT_3.setFunction(function()
-	local playerPos = player.getPos()
 	if HatWorn then
 		action_wheel.SLOT_3.setTitle("帽子を被る")
-		sound.playSound("minecraft:block.lava.extinguish", playerPos, {1, 1})
-		Hat.setEnabled(false)
-		ArmorHelmet.setEnabled(true)
-		RightParrot.setEnabled(true)
-		LeftParrot.setEnabled(true)
-		nameplate.ENTITY.setPos({0, 0, 0})
-		for i = 1, 30 do
-			particle.addParticle("minecraft:smoke", {playerPos.x, playerPos.y + 2, playerPos.z, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2})
-		end
 	else
 		action_wheel.SLOT_3.setTitle("帽子を外す")
-		sound.playSound("minecraft:entity.player.levelup", playerPos, {1, 2})
-		Hat.setEnabled(true)
-		ArmorHelmet.setEnabled(false)
-		RightParrot.setEnabled(false)
-		LeftParrot.setEnabled(false)
-		nameplate.ENTITY.setPos({0, 0.3, 0})
-		for i = 1, 30 do
-			particle.addParticle("minecraft:end_rod", {playerPos.x, playerPos.y + 2, playerPos.z, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2, (math.random() - 0.5) * 0.2})
-		end
 	end
 	HatWorn = not HatWorn
+	ping.setHatWorn(HatWorn)
 	data.save("HatWorn", HatWorn)
 end)
 
@@ -343,6 +370,7 @@ if SkinName ~= "" then
 			end
 		end
 		UseSkinName = not UseSkinName
+		ping.setUseSkinName(UseSkinName)
 		data.save("UseSkinName", UseSkinName)
 	end)
 else
@@ -600,7 +628,7 @@ function tick()
 
 		--クリエイティブ飛行時の腕の処理
 		if attackKeyPressed and not AttackKeyPressedPrev and mainHeldItem == nil then
-			AttackAnimationCount = 6
+			ping.punch()
 		end
 	else
 		hidePartTable(Chestplate)
