@@ -758,7 +758,7 @@ function render(delta)
 		lookRotDelta = 360 - lookRotDelta
 	end
 	local guiName = client.getOpenScreen()
-	if guiName ~= "クラフト" and guiName ~= "Crafting" and guiName ~= "class_481" and guiName ~= "Figura Menu" then
+	if guiName ~= "クラフト" and guiName ~= "Crafting" and guiName ~= "class_481" and guiName ~= "Figura Menu" and guiName ~= "Figurメニュー" then
 		table.insert(VelocityData[3], lookRotDelta * Fps)
 	else
 		table.insert(VelocityData[3], 0)
